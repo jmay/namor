@@ -67,6 +67,11 @@ describe "name componentization" do
     Namor::components("john q. smith").should == ['JOHN', 'Q', 'SMITH']
   end
 
+  it "should excise common suffixes" do
+    Namor::components("john smith III").should == ['JOHN', 'SMITH']
+    Namor::components("john smith jr").should == ['JOHN', 'SMITH']
+  end
+
   it "should excise from suppression list" do
     Namor::components("john smith esq.").should == ['ESQ', 'JOHN', 'SMITH']
     Namor::components("john smith esq.", :suppress => ['esq']).should == ['JOHN', 'SMITH']

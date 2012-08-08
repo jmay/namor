@@ -64,7 +64,8 @@ module Namor
       bits += name.split(/\s+/).map(&:upcase)
     end
 
-    bits.delete_if {|bit| suppression_list.include?(bit)}
+    suppress_re = %w{MD JR SR I+ IV}.join('|')
+    bits.delete_if {|bit| suppression_list.include?(bit) || bit =~ /^(#{suppress_re})$/}
     bits.delete_if(&:empty?)
     bits.uniq.sort
   end
