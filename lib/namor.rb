@@ -47,4 +47,25 @@ module Namor
     return [] if ary.empty?
     ary << ary.last.gsub(/\W/, '_')
   end
+
+
+  def self.components(*args)
+    opts = args.last.is_a?(Hash) ? args.pop : {}
+    suppression_list = opts[:suppress] ? opts[:suppress].map(&:upcase) : []
+
+    names = args
+    bits = []
+    names.compact.each do |name|
+      name = name.dup
+      name.gsub!(/\([^\(]*\)/, '')
+      name.gsub!(/\[[^\[]*\]/, '')
+      name.gsub!(/[\(\)\[\]\']/, '')
+      name.gsub!(/[,._-]/, ' ')
+      bits += name.split(/\s+/).map(&:upcase)
+    end
+
+    bits.delete_if {|bit| suppression_list.include?(bit)}
+    bits.delete_if(&:empty?)
+    bits.uniq.sort
+  end
 end

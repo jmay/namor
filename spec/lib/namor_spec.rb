@@ -61,3 +61,14 @@ describe "with cluster coding" do
     Namor::extract_with_cluster("Smith Jr, Edward III MD PHD", :suppress => ['MD', 'DDS']).last.should == 'SMITH_EDWARD_PHD'
   end
 end
+
+describe "name componentization" do
+  it "should include initials" do
+    Namor::components("john q. smith").should == ['JOHN', 'Q', 'SMITH']
+  end
+
+  it "should excise from suppression list" do
+    Namor::components("john smith esq.").should == ['ESQ', 'JOHN', 'SMITH']
+    Namor::components("john smith esq.", :suppress => ['esq']).should == ['JOHN', 'SMITH']
+  end
+end
