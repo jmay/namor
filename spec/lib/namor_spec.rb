@@ -59,6 +59,16 @@ describe "name extract" do
   it "should handle pathological cases" do
     @namor.extract(", Mary Smith").should == ['MARY', 'SMITH', nil, 'MARY SMITH']
   end
+
+  it "should squash multi-part last names" do
+    @namor.extract("Al Hassan, Bashar").should == ['BASHAR', nil, 'ALHASSAN', 'ALHASSAN,BASHAR']
+    @namor.extract("Bashar Al-Hassan").should == ['BASHAR', nil, 'ALHASSAN', 'ALHASSAN,BASHAR']
+  end
+
+  it "should squash hyphenated first names" do
+    @namor.extract("Smith,Anne-Marie").should == ['ANNEMARIE', nil, 'SMITH', 'SMITH,ANNEMARIE']
+  end
+
 end
 
 describe "with cluster coding" do
