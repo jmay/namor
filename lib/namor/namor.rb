@@ -7,13 +7,25 @@ class Namor::Namor
     @config = opts
   end
 
-  def extract(name)
+  # clean up a single name component
+  # * output all converted to uppercase
+  # * strip leading ZZ+ or XX+ (frequently used as invalid-account prefixes)
+  # * remove any words that are in the user-provided suppression list
+  # * remove words from list of common suffixes (Jr, Sr etc)
+  # * remove anything inside parenthesis
+  # * remove punctuation
+  # * squeeze whitespace & trim spaces from ends
+  def scrub(name, opts = {})
+    suppression_list = @config[:suppress] || []
+    suppression_re = (suppression_list + (opts[:suppress]||[])).map(&:upcase).join('|')
+
+    name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(/\b(#{suppression_re})\b/i, '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\(]*\)/, '').gsub(/\./, ' ').gsub(/[_'-]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
+  end
+
+  def extract(name, opts = {})
     return [] if name.nil?
 
-    suppression_list = @config[:suppress] || []
-    suppression_re = suppression_list.join('|')
-
-    detitled_name = name.upcase.gsub(/\b(#{suppression_re})\b/i, '').gsub(/\b(MD|JR|SR|I+|IV)\b/i, '').gsub(/\([^\(]*\)/, '').gsub(/[_.'-]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
+    detitled_name = scrub(name, opts)
 
     if detitled_name =~ /,/
       # "last, first[ middle]"

@@ -5,7 +5,7 @@ require "spec_helper"
 describe "name extract" do
   before(:all) do
     @namor = Namor::Namor.new
-    @namor.config(:suppress => ['MD', 'DDS'])
+    @namor.config(:suppress => ['MD', 'dds'])
   end
 
   it "should handle 2-part names without commas" do
@@ -69,6 +69,9 @@ describe "name extract" do
     @namor.extract("Smith,Anne-Marie").should == ['ANNEMARIE', nil, 'SMITH', 'SMITH,ANNEMARIE']
   end
 
+  it "should treat some cases with periods as first.last" do
+    @namor.extract("john.smith").should == ['JOHN', nil, 'SMITH', 'SMITH,JOHN']
+  end
 end
 
 describe "with cluster coding" do
@@ -100,5 +103,26 @@ describe "name componentization" do
   it "should excise from suppression list" do
     @namor.components("john smith esk.").should == ['ESK', 'JOHN', 'SMITH']
     @namor.components("john smith esq.").should == ['JOHN', 'SMITH']
+  end
+
+  it "should scrub individual name components of punctuation and titles" do
+    @namor.scrub('Foxworthy-Smythe, ESQ.').should == 'FOXWORTHYSMYTHE'
+  end
+
+  it "should delete strings inside parens" do
+    @namor.scrub("O'Hara (Morrison)").should == 'OHARA'
+    @namor.scrub("  Smith  (Brown) ").should == 'SMITH'
+  end
+
+  it "should deal with periods in names" do
+    @namor.scrub("G. Gordon").should == 'G GORDON'
+  end
+
+  it "should remove junk prefixing" do
+    @namor.scrub("ZZJOHN SMITH").should == 'JOHN SMITH'
+  end
+
+  it "should allow case-specific word suppression" do
+    @namor.scrub("Amazing Magician", :suppress => ['magician']).should == 'AMAZING'
   end
 end
