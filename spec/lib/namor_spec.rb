@@ -123,6 +123,6 @@ describe "name componentization" do
   end
 
   it "should allow case-specific word suppression" do
-    @namor.scrub("Amazing Magician", :suppress => ['magician']).should == 'AMAZING'
+    @namor.scrub("Amazing Magician", :suppress => ['magician', nil, 'conjuror']).should == 'AMAZING'
   end
 end
