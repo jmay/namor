@@ -60,8 +60,8 @@ class Namor::Namor
     [firstname, middlename, lastname, fullname]
   end
 
-  def extract_with_cluster(name)
-    ary = extract(name)
+  def extract_with_cluster(name, opts = {})
+    ary = extract(name, opts)
     return [] if ary.empty?
     ary << ary.last.gsub(/\W/, '_')
   end
