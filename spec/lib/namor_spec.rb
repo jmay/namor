@@ -136,3 +136,22 @@ describe "name componentization" do
     @namor.scrub("Jones, Susan Select Transcriptionist", :suppress => ['transcriptionist', 'select transcriptionist']).should == 'JONES, SUSAN'
   end
 end
+
+describe "title suppression" do
+  before(:all) do
+    @namor = Namor::Namor.new
+  end
+
+  it "should only suppress isolated terms" do
+    @namor.scrub("Smith, Mary RN", :suppress => ['RN']).should == 'SMITH, MARY'
+    @namor.scrub("Smith, Marnie", :suppress => ['RN']).should == 'SMITH, MARNIE'
+  end
+
+  it "should scrub words with periods" do
+    @namor.scrub("Smith, Mary M.D.", :suppress => ['M.D.']).should == 'SMITH, MARY'
+  end
+
+  it "should scrub individual name components of punctuation and titles" do
+    @namor.fullscrub('Foxworthy-Smythe, ESQ.', :suppress => ['esq']).should == 'FOXWORTHYSMYTHE'
+  end
+end

@@ -17,13 +17,13 @@ class Namor::Namor
   # * squeeze whitespace & trim spaces from ends
   def scrub(name, opts = {})
     suppression_list = @config[:suppress] || []
-    suppression_re = Regexp.new('\b?' + (suppression_list + (opts[:suppress]||[])).compact.map(&:upcase).join('|') + '\b?')
+    suppression_re = Regexp.new('(\s|^)' + (suppression_list + (opts[:suppress]||[])).compact.map(&:upcase).join('|') + '(\s|\.|$)')
 
     name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(suppression_re, '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\(]*\)/, '').gsub(/\./, ' ').gsub(/[_'\&]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
   end
 
-  def fullscrub(name)
-    final_cleaning(scrub(name))
+  def fullscrub(name, opts = {})
+    final_cleaning(scrub(name, opts))
   end
 
   def demaiden(lastname)
