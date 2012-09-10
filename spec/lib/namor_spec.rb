@@ -9,71 +9,75 @@ describe "name extract" do
   end
 
   it "should handle 2-part names without commas" do
-    @namor.extract("john smith").should == ['JOHN', nil, 'SMITH', 'SMITH,JOHN']
+    @namor.extract("john smith").should == ['JOHN', nil, 'SMITH', 'SMITH,JOHN', 'SMITH,JOHN']
   end
 
   it "should handle 2-part names with commas" do
-    @namor.extract("SMITH, JOHN").should == ['JOHN', nil, 'SMITH', 'SMITH,JOHN']
+    @namor.extract("SMITH, JOHN").should == ['JOHN', nil, 'SMITH', 'SMITH,JOHN', 'SMITH,JOHN']
   end
 
   it "should handle 2-part names with commas and middle initials" do
-    @namor.extract("SMITH, JOHN R").should == ['JOHN', 'R', 'SMITH', 'SMITH,JOHN R']
+    @namor.extract("SMITH, JOHN R").should == ['JOHN', 'R', 'SMITH', 'SMITH,JOHN R', 'SMITH,JOHN R']
   end
 
   it "should handle 2-part names with commas and middle initials" do
-    @namor.extract("SMITH, JOHN R").should == ['JOHN', 'R', 'SMITH', 'SMITH,JOHN R']
+    @namor.extract("SMITH, JOHN R").should == ['JOHN', 'R', 'SMITH', 'SMITH,JOHN R', 'SMITH,JOHN R']
   end
 
   it "should strip elements within parentheses" do
-    @namor.extract("SMITH, JOHN (Jacko) R").should == ['JOHN', 'R', 'SMITH', 'SMITH,JOHN R']
+    @namor.extract("SMITH, JOHN (Jacko) R").should == ['JOHN', 'R', 'SMITH', 'SMITH,JOHN R', 'SMITH,JOHN R']
   end
 
   it "should drop periods" do
-    @namor.extract("John R. Smith").should == ['JOHN', 'R', 'SMITH', 'SMITH,JOHN R']
+    @namor.extract("John R. Smith").should == ['JOHN', 'R', 'SMITH', 'SMITH,JOHN R', 'SMITH,JOHN R']
   end
 
   it "should drop spaces in last name (only when input has a comma)" do
-    @namor.extract("Smith Jones, Mary").should == ['MARY', nil, 'SMITHJONES', 'SMITHJONES,MARY']
+    @namor.extract("Smith Jones, Mary").should == ['MARY', nil, 'SMITHJONES', 'SMITHJONES,MARY', 'JONES,MARY']
   end
 
   it "should drop dashes, apostrophes, ampersands" do
-    @namor.extract("Mary Smith-Jones").should == ['MARY', nil, 'SMITHJONES', 'SMITHJONES,MARY']
-    @namor.extract("Mary S. O'Keefe").should == ['MARY', 'S', 'OKEEFE', 'OKEEFE,MARY S']
-    @namor.extract("Jean-Michel Claude").should == ['JEANMICHEL', nil, 'CLAUDE', 'CLAUDE,JEANMICHEL']
-    @namor.extract("Smith, Bob & Sue").should == ['BOB', 'SUE', 'SMITH', 'SMITH,BOB SUE']
-    @namor.extract("Research & Development").should == ['RESEARCH', nil, 'DEVELOPMENT', 'DEVELOPMENT,RESEARCH']
+    @namor.extract("Mary Smith-Jones").should == ['MARY', nil, 'SMITHJONES', 'SMITHJONES,MARY', 'JONES,MARY']
+    @namor.extract("Mary S. O'Keefe").should == ['MARY', 'S', 'OKEEFE', 'OKEEFE,MARY S', 'OKEEFE,MARY S']
+    @namor.extract("Jean-Michel Claude").should == ['JEANMICHEL', nil, 'CLAUDE', 'CLAUDE,JEANMICHEL', 'CLAUDE,JEANMICHEL']
+    @namor.extract("Smith, Bob & Sue").should == ['BOB', 'SUE', 'SMITH', 'SMITH,BOB SUE', 'SMITH,BOB SUE']
+    @namor.extract("Research & Development").should == ['RESEARCH', nil, 'DEVELOPMENT', 'DEVELOPMENT,RESEARCH', 'DEVELOPMENT,RESEARCH']
   end
 
   it "should concatenate extract name pieces" do
-    @namor.extract("rajesh kumar vishnu garuda").should == ['RAJESH', nil, 'KUMARVISHNUGARUDA', 'KUMARVISHNUGARUDA,RAJESH']
-    @namor.extract("Kumar, Rajesh Vishnu Garuda").should == ['RAJESH', 'VISHNUGARUDA', 'KUMAR', 'KUMAR,RAJESH VISHNUGARUDA']
+    @namor.extract("rajesh kumar vishnu garuda").should == ['RAJESH', nil, 'KUMARVISHNUGARUDA', 'KUMARVISHNUGARUDA,RAJESH', 'GARUDA,RAJESH']
+    @namor.extract("Kumar, Rajesh Vishnu Garuda").should == ['RAJESH', 'VISHNUGARUDA', 'KUMAR', 'KUMAR,RAJESH VISHNUGARUDA', 'KUMAR,RAJESH VISHNUGARUDA']
   end
 
   it "should excise suffixes like 'Jr.' from lastnames" do
-    @namor.extract("Smith Jr, Edward M").should == ['EDWARD', 'M', 'SMITH', 'SMITH,EDWARD M']
+    @namor.extract("Smith Jr, Edward M").should == ['EDWARD', 'M', 'SMITH', 'SMITH,EDWARD M', 'SMITH,EDWARD M']
   end
 
   it "should excise terms from optional suppression list" do
-    @namor.extract("Smith Jr, Edward M MD DDS").should == ['EDWARD', 'M', 'SMITH', 'SMITH,EDWARD M']
-    @namor.extract("Smith Jr, Edward M M.D.").should == ['EDWARD', 'M', 'SMITH', 'SMITH,EDWARD M']
-    @namor.extract("Smith Jr, Edward III MD PHD").should == ['EDWARD', 'PHD', 'SMITH', 'SMITH,EDWARD PHD']
+    @namor.extract("Smith Jr, Edward M MD DDS").should == ['EDWARD', 'M', 'SMITH', 'SMITH,EDWARD M', 'SMITH,EDWARD M']
+    @namor.extract("Smith Jr, Edward M M.D.").should == ['EDWARD', 'M', 'SMITH', 'SMITH,EDWARD M', 'SMITH,EDWARD M']
+    @namor.extract("Smith Jr, Edward III MD PHD").should == ['EDWARD', 'PHD', 'SMITH', 'SMITH,EDWARD PHD', 'SMITH,EDWARD PHD']
   end
 
   it "should handle pathological cases" do
-    @namor.extract(", Mary Smith").should == ['MARY', 'SMITH', nil, 'MARY SMITH']
+    @namor.extract(", Mary Smith").should == ['MARY', 'SMITH', nil, 'MARY SMITH', 'MARY SMITH']
   end
 
   it "should squash multi-part last names" do
-    @namor.extract("Al Hassan, Bashar").should == ['BASHAR', nil, 'ALHASSAN', 'ALHASSAN,BASHAR']
-    @namor.extract("Bashar Al-Hassan").should == ['BASHAR', nil, 'ALHASSAN', 'ALHASSAN,BASHAR']
+    @namor.extract("Al Hassan, Bashar").should == ['BASHAR', nil, 'ALHASSAN', 'ALHASSAN,BASHAR', 'HASSAN,BASHAR']
+    @namor.extract("Bashar Al-Hassan").should == ['BASHAR', nil, 'ALHASSAN', 'ALHASSAN,BASHAR', 'HASSAN,BASHAR']
   end
 
   it "should squash hyphenated first names" do
-    @namor.extract("Smith,Anne-Marie").should == ['ANNEMARIE', nil, 'SMITH', 'SMITH,ANNEMARIE']
+    @namor.extract("Smith,Anne-Marie").should == ['ANNEMARIE', nil, 'SMITH', 'SMITH,ANNEMARIE', 'SMITH,ANNEMARIE']
   end
 
   it "should treat some cases with periods as first.last" do
-    @namor.extract("john.smith").should == ['JOHN', nil, 'SMITH', 'SMITH,JOHN']
+    @namor.extract("john.smith").should == ['JOHN', nil, 'SMITH', 'SMITH,JOHN', 'SMITH,JOHN']
+  end
+
+  it "should generate estimated maiden names" do
+    @namor.extract("Jones-De Quento, Maria").should == ['MARIA', nil, 'JONESDEQUENTO', 'JONESDEQUENTO,MARIA', 'DEQUENTO,MARIA']
   end
 end
 
@@ -109,7 +113,7 @@ describe "name componentization" do
   end
 
   it "should scrub individual name components of punctuation and titles" do
-    @namor.scrub('Foxworthy-Smythe, ESQ.').should == 'FOXWORTHYSMYTHE'
+    @namor.fullscrub('Foxworthy-Smythe, ESQ.').should == 'FOXWORTHYSMYTHE'
   end
 
   it "should delete strings inside parens" do

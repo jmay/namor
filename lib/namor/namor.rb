@@ -19,7 +19,28 @@ class Namor::Namor
     suppression_list = @config[:suppress] || []
     suppression_re = Regexp.new('\b?' + (suppression_list + (opts[:suppress]||[])).compact.map(&:upcase).join('|') + '\b?')
 
-    name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(suppression_re, '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\(]*\)/, '').gsub(/\./, ' ').gsub(/[_'\&-]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
+    name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(suppression_re, '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\(]*\)/, '').gsub(/\./, ' ').gsub(/[_'\&]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
+  end
+
+  def fullscrub(name)
+    final_cleaning(scrub(name))
+  end
+
+  def demaiden(lastname)
+    return [nil,nil] unless lastname && !lastname.empty?
+    if lastname =~ /\-/
+      [lastname.gsub(/ /, ''), lastname.split(/\-/).last.gsub(/ /, '')]
+    else
+      [lastname.gsub(/ /, ''), lastname.split(/ /).last]
+    end
+  end
+
+  def final_cleaning(name)
+    if name && !name.empty?
+      name.gsub(/\-/, '')
+    else
+      nil
+    end
   end
 
   def extract(name, opts = {})
@@ -30,7 +51,7 @@ class Namor::Namor
     if detitled_name =~ /,/
       # "last, first[ middle]"
       lastname, firstname = detitled_name.split(/\s*,\s*/)
-      lastname.gsub!(/ /, '')
+      lastname, de_maidened_last = demaiden(lastname)
       middlename = nil
       if firstname && firstname =~ / /
         pieces = firstname.split(/ +/)
@@ -38,26 +59,29 @@ class Namor::Namor
         middlename = pieces.join if pieces.any?
       end
     else
-      # "first [middle ]last"
+      # "first [middle-initial ]last" or "first everything-else-is-the-lastname"
       pieces = detitled_name.split(' ')
       firstname = pieces.shift
-      middlename = nil
       if pieces.count > 1 && pieces.first.length == 1
         # assume this is a middle initial
         middlename = pieces.shift
+      else
+        middlename = nil
       end
 
-      lastname = pieces.join
+      lastname, de_maidened_last = demaiden(pieces.join(' '))
     end
 
-    firstname = nil if firstname.empty?
-    middlename = nil if middlename && middlename.empty?
-    lastname = nil if lastname.empty?
+    firstname = final_cleaning(firstname)
+    middlename = final_cleaning(middlename)
+    lastname = final_cleaning(lastname)
+    de_maidened_last = final_cleaning(de_maidened_last)
 
     fm = [firstname, middlename].compact.join(' ')
     fullname = [lastname, fm].compact.join(',')
+    nee_fullname = [de_maidened_last, fm].compact.join(',')
 
-    [firstname, middlename, lastname, fullname]
+    [firstname, middlename, lastname, fullname, nee_fullname]
   end
 
   def extract_with_cluster(name, opts = {})
