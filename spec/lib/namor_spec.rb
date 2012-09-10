@@ -5,7 +5,7 @@ require "spec_helper"
 describe "name extract" do
   before(:all) do
     @namor = Namor::Namor.new
-    @namor.config(:suppress => ['MD', 'dds', 'M\.D\.'])
+    @namor.config(:suppress => ['MD', 'dds', 'M\.D'])
   end
 
   it "should handle 2-part names without commas" do
@@ -145,10 +145,13 @@ describe "title suppression" do
   it "should only suppress isolated terms" do
     @namor.scrub("Smith, Mary RN", :suppress => ['RN']).should == 'SMITH, MARY'
     @namor.scrub("Smith, Marnie", :suppress => ['RN']).should == 'SMITH, MARNIE'
+
+    @namor.scrub("Gonzalez, Lourdes", :suppress => ['RN', 'RD', 'DO']).should == 'GONZALEZ, LOURDES'
   end
 
   it "should scrub words with periods" do
-    @namor.scrub("Smith, Mary M.D.", :suppress => ['M.D.']).should == 'SMITH, MARY'
+    @namor.scrub("Smith, Mary M.D.", :suppress => ['M.D']).should == 'SMITH, MARY'
+    @namor.scrub("Smith, Mary M.D.", :suppress => ['RN', 'M.D.', 'DDS']).should == 'SMITH, MARY'
   end
 
   it "should scrub individual name components of punctuation and titles" do

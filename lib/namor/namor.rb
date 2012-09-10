@@ -1,10 +1,23 @@
 class Namor::Namor
   def initialize(opts = {})
     config(opts)
+    @re_cache = {}
   end
 
   def config(opts)
     @config = opts
+  end
+
+
+  def suppression_re(supp_list)
+    suppression_list = (@config[:suppress] || []) + (supp_list || [])
+
+    re = '\b(' + suppression_list.compact.map{|s| s.chomp('.')}.map(&:upcase).join('|') + ')\b'
+    Regexp.new(re)
+    # bits = suppression_list.compact.map do |s|
+    #   '\b' + s.upcase.chomp('.') + '\b'
+    # end
+    # Regexp.new(bits.join('|'))
   end
 
   # clean up a single name component
@@ -16,10 +29,9 @@ class Namor::Namor
   # * remove punctuation
   # * squeeze whitespace & trim spaces from ends
   def scrub(name, opts = {})
-    suppression_list = @config[:suppress] || []
-    suppression_re = Regexp.new('(\s|^)' + (suppression_list + (opts[:suppress]||[])).compact.map(&:upcase).join('|') + '(\s|\.|$)')
+    @re_cache[opts[:suppress]] ||= suppression_re(opts[:suppress])
 
-    name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(suppression_re, '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\(]*\)/, '').gsub(/\./, ' ').gsub(/[_'\&]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
+    name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(@re_cache[opts[:suppress]], '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\(]*\)/, '').gsub(/\./, ' ').gsub(/[_'\&]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
   end
 
   def fullscrub(name, opts = {})
