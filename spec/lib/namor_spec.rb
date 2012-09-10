@@ -36,10 +36,12 @@ describe "name extract" do
     @namor.extract("Smith Jones, Mary").should == ['MARY', nil, 'SMITHJONES', 'SMITHJONES,MARY']
   end
 
-  it "should drop dashes & apostrophes" do
+  it "should drop dashes, apostrophes, ampersands" do
     @namor.extract("Mary Smith-Jones").should == ['MARY', nil, 'SMITHJONES', 'SMITHJONES,MARY']
     @namor.extract("Mary S. O'Keefe").should == ['MARY', 'S', 'OKEEFE', 'OKEEFE,MARY S']
     @namor.extract("Jean-Michel Claude").should == ['JEANMICHEL', nil, 'CLAUDE', 'CLAUDE,JEANMICHEL']
+    @namor.extract("Smith, Bob & Sue").should == ['BOB', 'SUE', 'SMITH', 'SMITH,BOB SUE']
+    @namor.extract("Research & Development").should == ['RESEARCH', nil, 'DEVELOPMENT', 'DEVELOPMENT,RESEARCH']
   end
 
   it "should concatenate extract name pieces" do
@@ -125,5 +127,8 @@ describe "name componentization" do
 
   it "should allow case-specific word suppression" do
     @namor.scrub("Amazing Magician", :suppress => ['magician', nil, 'conjuror']).should == 'AMAZING'
+    @namor.scrub("Jones, Susan Select Transcriptionist", :suppress => ['transcriptionist']).should == 'JONES, SUSAN SELECT'
+    @namor.scrub("Jones, Susan Select Transcriptionist", :suppress => ['select transcriptionist']).should == 'JONES, SUSAN'
+    @namor.scrub("Jones, Susan Select Transcriptionist", :suppress => ['transcriptionist', 'select transcriptionist']).should == 'JONES, SUSAN'
   end
 end
