@@ -5,7 +5,7 @@ require "spec_helper"
 describe "name extract" do
   before(:all) do
     @namor = Namor::Namor.new
-    @namor.config(:suppress => ['MD', 'dds'])
+    @namor.config(:suppress => ['MD', 'dds', 'M\.D\.'])
   end
 
   it "should handle 2-part names without commas" do
@@ -53,6 +53,7 @@ describe "name extract" do
 
   it "should excise terms from optional suppression list" do
     @namor.extract("Smith Jr, Edward M MD DDS").should == ['EDWARD', 'M', 'SMITH', 'SMITH,EDWARD M']
+    @namor.extract("Smith Jr, Edward M M.D.").should == ['EDWARD', 'M', 'SMITH', 'SMITH,EDWARD M']
     @namor.extract("Smith Jr, Edward III MD PHD").should == ['EDWARD', 'PHD', 'SMITH', 'SMITH,EDWARD PHD']
   end
 

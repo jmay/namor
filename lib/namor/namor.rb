@@ -17,9 +17,9 @@ class Namor::Namor
   # * squeeze whitespace & trim spaces from ends
   def scrub(name, opts = {})
     suppression_list = @config[:suppress] || []
-    suppression_re = (suppression_list + (opts[:suppress]||[])).compact.map(&:upcase).join('|')
+    suppression_re = Regexp.new('\b?' + (suppression_list + (opts[:suppress]||[])).compact.map(&:upcase).join('|') + '\b?')
 
-    name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(/\b(#{suppression_re})\b/i, '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\(]*\)/, '').gsub(/\./, ' ').gsub(/[_'-]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
+    name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(suppression_re, '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\(]*\)/, '').gsub(/\./, ' ').gsub(/[_'-]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
   end
 
   def extract(name, opts = {})
