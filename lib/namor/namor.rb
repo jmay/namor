@@ -99,7 +99,7 @@ class Namor::Namor
   def extract_with_cluster(name, opts = {})
     ary = extract(name, opts)
     return [] if ary.empty?
-    ary << ary.last.gsub(/\W/, '_')
+    ary << ary[3].gsub(/\W/, '_')
   end
 
 

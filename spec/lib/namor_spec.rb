@@ -78,6 +78,7 @@ describe "name extract" do
 
   it "should generate estimated maiden names" do
     @namor.extract("Jones-De Quento, Maria").should == ['MARIA', nil, 'JONESDEQUENTO', 'JONESDEQUENTO,MARIA', 'DEQUENTO,MARIA']
+    @namor.extract_with_cluster("Jones-De Quento, Maria").should == ['MARIA', nil, 'JONESDEQUENTO', 'JONESDEQUENTO,MARIA', 'DEQUENTO,MARIA', 'JONESDEQUENTO_MARIA']
   end
 end
 
