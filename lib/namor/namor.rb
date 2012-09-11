@@ -105,6 +105,7 @@ class Namor::Namor
     ary = extract(name, opts)
     return [] if ary.empty?
     ary << ary[3].gsub(/\W/, '_')
+    ary << ary[4].gsub(/\W/, '_')
   end
 
   def extract_from_pieces(hash)
