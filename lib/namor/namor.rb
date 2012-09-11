@@ -41,9 +41,9 @@ class Namor::Namor
   def demaiden(lastname)
     return [nil,nil] unless lastname && !lastname.empty?
     if lastname =~ /\-/
-      [lastname.gsub(/ /, ''), lastname.split(/\-/).last.gsub(/ /, '')]
+      [lastname.upcase.gsub(/ /, ''), lastname.split(/\-/).last.gsub(/ /, '')]
     else
-      [lastname.gsub(/ /, ''), lastname.split(/ /).last]
+      [lastname.upcase.gsub(/ /, ''), lastname.split(/ /).last]
     end
   end
 
@@ -62,6 +62,7 @@ class Namor::Namor
     de_maidened_last = final_cleaning(de_maidened_last)
 
     fm = [firstname, middlename].compact.join(' ')
+    fm = nil if fm.empty?
     fullname = [lastname, fm].compact.join(',')
     nee_fullname = [de_maidened_last, fm].compact.join(',')
 
@@ -119,8 +120,8 @@ class Namor::Namor
     ary = assemble(
       scrub(hash[:first]),
       scrub(hash[:middle]),
-      scrub(hash[:last].upcase),
-      scrub(demaiden(hash[:last].upcase).last)
+      scrub(hash[:last]),
+      scrub(demaiden(hash[:last]).last)
     )
     ary << ary[3].gsub(/\W/, '_')
     ary << ary[4].gsub(/\W/, '_')

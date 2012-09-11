@@ -87,6 +87,8 @@ describe "name extract" do
 
     @namor.extract_from_pieces_with_cluster(:first => 'John', :middle => 'M', :last => 'Smith').should == ['JOHN', 'M', 'SMITH', 'SMITH,JOHN M', 'SMITH,JOHN M', 'SMITH_JOHN_M', 'SMITH_JOHN_M']
     @namor.extract_from_pieces_with_cluster(:first => 'Susan', :last => 'Smith-Jones').should == ['SUSAN', nil, 'SMITHJONES', 'SMITHJONES,SUSAN', 'JONES,SUSAN', 'SMITHJONES_SUSAN', 'JONES_SUSAN']
+
+    @namor.extract_from_pieces(:last => 'Smith').should == [nil,nil, 'SMITH', 'SMITH', 'SMITH']
   end
 
 end
