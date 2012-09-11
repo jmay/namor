@@ -80,6 +80,15 @@ describe "name extract" do
     @namor.extract("Jones-De Quento, Maria").should == ['MARIA', nil, 'JONESDEQUENTO', 'JONESDEQUENTO,MARIA', 'DEQUENTO,MARIA']
     @namor.extract_with_cluster("Jones-De Quento, Maria").should == ['MARIA', nil, 'JONESDEQUENTO', 'JONESDEQUENTO,MARIA', 'DEQUENTO,MARIA', 'JONESDEQUENTO_MARIA']
   end
+
+  it "should build pieces from input components" do
+    @namor.extract_from_pieces(:first => 'John', :middle => 'M', :last => 'Smith').should == ['JOHN', 'M', 'SMITH', 'SMITH,JOHN M', 'SMITH,JOHN M']
+    @namor.extract_from_pieces(:first => 'Susan', :last => 'Smith-Jones').should == ['SUSAN', nil, 'SMITHJONES', 'SMITHJONES,SUSAN', 'JONES,SUSAN']
+
+    @namor.extract_from_pieces_with_cluster(:first => 'John', :middle => 'M', :last => 'Smith').should == ['JOHN', 'M', 'SMITH', 'SMITH,JOHN M', 'SMITH,JOHN M', 'SMITH_JOHN_M', 'SMITH_JOHN_M']
+    @namor.extract_from_pieces_with_cluster(:first => 'Susan', :last => 'Smith-Jones').should == ['SUSAN', nil, 'SMITHJONES', 'SMITHJONES,SUSAN', 'JONES,SUSAN', 'SMITHJONES_SUSAN', 'JONES_SUSAN']
+  end
+
 end
 
 describe "with cluster coding" do

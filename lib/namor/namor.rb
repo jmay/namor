@@ -55,6 +55,19 @@ class Namor::Namor
     end
   end
 
+  def assemble(firstname, middlename, lastname, de_maidened_last)
+    firstname = final_cleaning(firstname)
+    middlename = final_cleaning(middlename)
+    lastname = final_cleaning(lastname)
+    de_maidened_last = final_cleaning(de_maidened_last)
+
+    fm = [firstname, middlename].compact.join(' ')
+    fullname = [lastname, fm].compact.join(',')
+    nee_fullname = [de_maidened_last, fm].compact.join(',')
+
+    [firstname, middlename, lastname, fullname, nee_fullname]
+  end
+
   def extract(name, opts = {})
     return [] if name.nil?
 
@@ -84,16 +97,7 @@ class Namor::Namor
       lastname, de_maidened_last = demaiden(pieces.join(' '))
     end
 
-    firstname = final_cleaning(firstname)
-    middlename = final_cleaning(middlename)
-    lastname = final_cleaning(lastname)
-    de_maidened_last = final_cleaning(de_maidened_last)
-
-    fm = [firstname, middlename].compact.join(' ')
-    fullname = [lastname, fm].compact.join(',')
-    nee_fullname = [de_maidened_last, fm].compact.join(',')
-
-    [firstname, middlename, lastname, fullname, nee_fullname]
+    assemble(firstname, middlename, lastname, de_maidened_last)
   end
 
   def extract_with_cluster(name, opts = {})
@@ -102,6 +106,25 @@ class Namor::Namor
     ary << ary[3].gsub(/\W/, '_')
   end
 
+  def extract_from_pieces(hash)
+    assemble(
+      scrub(hash[:first]),
+      scrub(hash[:middle]),
+      scrub(hash[:last].upcase),
+      scrub(demaiden(hash[:last].upcase).last)
+    )
+  end
+
+  def extract_from_pieces_with_cluster(hash)
+    ary = assemble(
+      scrub(hash[:first]),
+      scrub(hash[:middle]),
+      scrub(hash[:last].upcase),
+      scrub(demaiden(hash[:last].upcase).last)
+    )
+    ary << ary[3].gsub(/\W/, '_')
+    ary << ary[4].gsub(/\W/, '_')
+  end
 
   def components(*args)
     suppression_list = @config[:suppress] ? @config[:suppress].map(&:upcase) : []
