@@ -118,8 +118,8 @@ class Namor::Namor
     assemble(
       scrub(hash[:first]),
       scrub(hash[:middle]),
-      scrub_and_squash(hash[:last].upcase),
-      scrub_and_squash(demaiden(hash[:last].upcase).last)
+      scrub_and_squash(hash[:last]),
+      scrub_and_squash((s = demaiden(hash[:last])) && s.last)
     )
   end
 
