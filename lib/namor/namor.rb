@@ -38,6 +38,12 @@ class Namor::Namor
     final_cleaning(scrub(name, opts))
   end
 
+  # scrub as above, but as a final stage, convert the result to a single term (no spaces or hyphens between bits)
+  def scrub_and_squash(name, opts = {})
+    s = scrub(name, opts)
+    s && s.gsub(/[- ]/, '')
+  end
+
   def demaiden(lastname)
     return [nil,nil] unless lastname && !lastname.empty?
     if lastname =~ /\-/
@@ -112,18 +118,13 @@ class Namor::Namor
     assemble(
       scrub(hash[:first]),
       scrub(hash[:middle]),
-      scrub(hash[:last].upcase),
-      scrub(demaiden(hash[:last].upcase).last)
+      scrub_and_squash(hash[:last].upcase),
+      scrub_and_squash(demaiden(hash[:last].upcase).last)
     )
   end
 
   def extract_from_pieces_with_cluster(hash)
-    ary = assemble(
-      scrub(hash[:first]),
-      scrub(hash[:middle]),
-      scrub(hash[:last]),
-      scrub(demaiden(hash[:last]).last)
-    )
+    ary = extract_from_pieces(hash)
     ary << ary[3].gsub(/\W/, '_')
     ary << ary[4].gsub(/\W/, '_')
   end
