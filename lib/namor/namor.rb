@@ -20,6 +20,11 @@ class Namor::Namor
     # Regexp.new(bits.join('|'))
   end
 
+  def suppress(name, supplist)
+    @re_cache[supplist] ||= suppression_re(supplist)
+    name && name.upcase.gsub(@re_cache[supplist], '')
+  end
+
   # clean up a single name component
   # * output all converted to uppercase
   # * strip leading ZZ+ or XX+ (frequently used as invalid-account prefixes)
@@ -31,7 +36,7 @@ class Namor::Namor
   def scrub(name, opts = {})
     @re_cache[opts[:suppress]] ||= suppression_re(opts[:suppress])
 
-    name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(@re_cache[opts[:suppress]], '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\(]*\)/, '').gsub(/\./, ' ').gsub(/[_'\&]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
+    name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(@re_cache[opts[:suppress]], '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\)]*\)/, '').gsub(/\[[^\]]*\]/, '').gsub(/\./, ' ').gsub(/[_'\&]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
   end
 
   def fullscrub(name, opts = {})
@@ -44,8 +49,9 @@ class Namor::Namor
     s && s.gsub(/[- ]/, '')
   end
 
-  def demaiden(lastname)
+  def demaiden(lastname, opts = {})
     return [nil,nil] unless lastname && !lastname.empty?
+    lastname = suppress(lastname, opts[:suppress]) if opts[:suppress]
     if lastname =~ /\-/
       [lastname.upcase.gsub(/ /, ''), lastname.split(/\-/).last.gsub(/ /, '')]
     else
@@ -114,17 +120,17 @@ class Namor::Namor
     ary << ary[4].gsub(/\W/, '_')
   end
 
-  def extract_from_pieces(hash)
+  def extract_from_pieces(hash, opts = {})
     assemble(
-      scrub(hash[:first]),
-      scrub(hash[:middle]),
-      scrub_and_squash(hash[:last]),
-      scrub_and_squash((s = demaiden(hash[:last])) && s.last)
+      scrub(hash[:first], opts),
+      scrub(hash[:middle], opts),
+      scrub_and_squash(hash[:last], opts),
+      scrub_and_squash((s = demaiden(hash[:last], opts)) && s.last, opts)
     )
   end
 
-  def extract_from_pieces_with_cluster(hash)
-    ary = extract_from_pieces(hash)
+  def extract_from_pieces_with_cluster(hash, opts = {})
+    ary = extract_from_pieces(hash, opts)
     ary << ary[3].gsub(/\W/, '_')
     ary << ary[4].gsub(/\W/, '_')
   end

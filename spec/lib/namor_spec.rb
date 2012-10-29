@@ -28,6 +28,10 @@ describe "name extract" do
     @namor.extract("SMITH, JOHN (Jacko) R").should == ['JOHN', 'R', 'SMITH', 'SMITH,JOHN R', 'SMITH,JOHN R']
   end
 
+  it "should strip elements within square brackets" do
+    @namor.extract("SMITH, JOHN [Jacko] R").should == ['JOHN', 'R', 'SMITH', 'SMITH,JOHN R', 'SMITH,JOHN R']
+  end
+
   it "should drop periods" do
     @namor.extract("John R. Smith").should == ['JOHN', 'R', 'SMITH', 'SMITH,JOHN R', 'SMITH,JOHN R']
   end
@@ -56,6 +60,7 @@ describe "name extract" do
   it "should excise terms from optional suppression list" do
     @namor.extract("Smith Jr, Edward M MD DDS").should == ['EDWARD', 'M', 'SMITH', 'SMITH,EDWARD M', 'SMITH,EDWARD M']
     @namor.extract("Smith Jr, Edward M M.D.").should == ['EDWARD', 'M', 'SMITH', 'SMITH,EDWARD M', 'SMITH,EDWARD M']
+    @namor.extract("Smith Jr, Edward M M.D. [Oph,Ped Orth]").should == ['EDWARD', 'M', 'SMITH', 'SMITH,EDWARD M', 'SMITH,EDWARD M']
     @namor.extract("Smith Jr, Edward III MD PHD").should == ['EDWARD', 'PHD', 'SMITH', 'SMITH,EDWARD PHD', 'SMITH,EDWARD PHD']
   end
 
@@ -87,6 +92,8 @@ describe "name extract" do
 
     @namor.extract_from_pieces_with_cluster(:first => 'John', :middle => 'M', :last => 'Smith').should == ['JOHN', 'M', 'SMITH', 'SMITH,JOHN M', 'SMITH,JOHN M', 'SMITH_JOHN_M', 'SMITH_JOHN_M']
     @namor.extract_from_pieces_with_cluster(:first => 'Susan', :last => 'Smith-Jones').should == ['SUSAN', nil, 'SMITHJONES', 'SMITHJONES,SUSAN', 'JONES,SUSAN', 'SMITHJONES_SUSAN', 'JONES_SUSAN']
+
+    @namor.extract_from_pieces_with_cluster({:first => 'Susan', :last => 'Smith-Jones MD PHD'}, {:suppress => ['MD', 'PHD']}).should == ['SUSAN', nil, 'SMITHJONES', 'SMITHJONES,SUSAN', 'JONES,SUSAN', 'SMITHJONES_SUSAN', 'JONES_SUSAN']
 
     @namor.extract_from_pieces(:last => 'Smith').should == [nil,nil, 'SMITH', 'SMITH', 'SMITH']
 
