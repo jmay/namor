@@ -36,7 +36,7 @@ class Namor::Namor
   def scrub(name, opts = {})
     @re_cache[opts[:suppress]] ||= suppression_re(opts[:suppress])
 
-    name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(@re_cache[opts[:suppress]], '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\)]*\)/, '').gsub(/\[[^\]]*\]/, '').gsub(/\./, ' ').gsub(/[_'\&]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
+    name && name.upcase.gsub(/^[ZX]{2,}/, '').gsub(@re_cache[opts[:suppress]], '').gsub(/\b(JR|SR|II|III|IV)\b/i, '').gsub(/\([^\)]*\)/, '').gsub(/\[[^\]]*\]/, '').gsub(/\./, ' ').gsub(/[_'"\&]/, '').gsub(/,\s*$/, '').gsub(/ +/, ' ').strip
   end
 
   def fullscrub(name, opts = {})

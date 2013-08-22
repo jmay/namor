@@ -48,6 +48,11 @@ describe "name extract" do
     @namor.extract("Research & Development").should == ['RESEARCH', nil, 'DEVELOPMENT', 'DEVELOPMENT,RESEARCH', 'DEVELOPMENT,RESEARCH']
   end
 
+  it "should drop double-quotes" do
+    @namor.extract_with_cluster('Smith, William "Bill"').should == ['WILLIAM', 'BILL', 'SMITH', 'SMITH,WILLIAM BILL', 'SMITH,WILLIAM BILL', 'SMITH_WILLIAM_BILL', 'SMITH_WILLIAM_BILL']
+  end
+
+
   it "should concatenate extract name pieces" do
     @namor.extract("rajesh kumar vishnu garuda").should == ['RAJESH', nil, 'KUMARVISHNUGARUDA', 'KUMARVISHNUGARUDA,RAJESH', 'GARUDA,RAJESH']
     @namor.extract("Kumar, Rajesh Vishnu Garuda").should == ['RAJESH', 'VISHNUGARUDA', 'KUMAR', 'KUMAR,RAJESH VISHNUGARUDA', 'KUMAR,RAJESH VISHNUGARUDA']
